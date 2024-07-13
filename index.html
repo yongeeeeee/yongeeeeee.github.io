@@ -1,83 +1,92 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카카오톡 공유하기</title>
-    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        #message { width: 80%; height: 100px; margin: 20px 0; }
-        #imagePreview { max-width: 300px; max-height: 300px; margin: 20px auto; }
-        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-    </style>
-</head>
-<body>
-    <h1>카카오톡으로 메시지 및 이미지 공유하기</h1>
-    <textarea id="message" placeholder="공유할 메시지를 입력하세요"></textarea><br>
-    <div id="imagePasteArea" style="border: 2px dashed #ccc; padding: 20px; margin: 20px auto; width: 300px;">
-        여기에 이미지를 붙여넣기 하세요
-    </div>
-    <img id="imagePreview" style="display: none;"><br>
-    <button onclick="shareToKakao()">카카오톡으로 공유하기</button>
-
+    <title>KakaoTalk Clipboard Share Example</title>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script>
-        Kakao.init('58a4b536ddc574504cbe7b19168b3839'); // 여기에 발급받은 앱 키를 입력하세요
+        // Initialize Kakao SDK with your JavaScript key
+        Kakao.init('YOUR_JAVASCRIPT_KEY');
+        console.log(Kakao.isInitialized()); // Check if initialized
 
-        let pastedImage = null;
+        async function shareOnKakao(text, imageUrl) {
+            Kakao.Link.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: 'Shared from Clipboard',
+                    description: text,
+                    imageUrl: imageUrl,
+                    link: {
+                        mobileWebUrl: imageUrl,
+                        webUrl: imageUrl
+                    }
+                },
+                buttons: [
+                    {
+                        title: 'View Image',
+                        link: {
+                            mobileWebUrl: imageUrl,
+                            webUrl: imageUrl
+                        }
+                    }
+                ]
+            });
+        }
 
-        document.getElementById('imagePasteArea').addEventListener('paste', function(e) {
+        function handlePasteEvent(e) {
             const items = e.clipboardData.items;
+            let text = '';
+            let imageUrl = '';
+            let imageFound = false;
+
             for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
+                if (items[i].type.indexOf("image") !== -1) {
                     const blob = items[i].getAsFile();
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        document.getElementById('imagePreview').src = event.target.result;
-                        document.getElementById('imagePreview').style.display = 'block';
-                        pastedImage = event.target.result;
+                        imageUrl = event.target.result;
+                        document.getElementById('preview').src = imageUrl;
+                        imageFound = true;
+                        if (text || imageFound) {
+                            document.getElementById('share-btn').disabled = false;
+                        }
                     };
                     reader.readAsDataURL(blob);
+                } else if (items[i].kind === 'string') {
+                    items[i].getAsString(function(str) {
+                        text = str;
+                        document.getElementById('text-preview').innerText = text;
+                        if (text || imageFound) {
+                            document.getElementById('share-btn').disabled = false;
+                        }
+                    });
                 }
             }
-        });
-
-        function shareToKakao() {
-            const message = document.getElementById('message').value;
-            
-            if (pastedImage) {
-                Kakao.Link.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '공유 메시지',
-                        description: message,
-                        imageUrl: pastedImage,
-                        link: {
-                            mobileWebUrl: 'https://developers.kakao.com',
-                            webUrl: 'https://developers.kakao.com',
-                        },
-                    },
-                    buttons: [
-                        {
-                            title: '웹으로 보기',
-                            link: {
-                                mobileWebUrl: 'https://developers.kakao.com',
-                                webUrl: 'https://developers.kakao.com',
-                            },
-                        },
-                    ],
-                });
-            } else {
-                Kakao.Link.sendDefault({
-                    objectType: 'text',
-                    text: message,
-                    link: {
-                        mobileWebUrl: 'https://developers.kakao.com',
-                        webUrl: 'https://developers.kakao.com',
-                    },
-                });
-            }
         }
+
+        document.addEventListener('paste', handlePasteEvent);
+    </script>
+</head>
+<body>
+    <h1>KakaoTalk Clipboard Share Example</h1>
+    <p>Paste text and/or an image from your clipboard here:</p>
+    <div>
+        <p>Text:</p>
+        <p id="text-preview" style="border: 1px solid #ccc; padding: 10px;"></p>
+    </div>
+    <div>
+        <p>Image:</p>
+        <img id="preview" src="" alt="Image preview" style="max-width: 100%; height: auto;"/>
+    </div>
+    <br/>
+    <button id="share-btn" disabled>Share on KakaoTalk</button>
+    <script>
+        document.getElementById('share-btn').onclick = function() {
+            const text = document.getElementById('text-preview').innerText;
+            const imageUrl = document.getElementById('preview').src;
+            shareOnKakao(text, imageUrl);
+        };
     </script>
 </body>
 </html>
