@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KakaoTalk Clipboard Share Example</title>
@@ -8,9 +6,10 @@
     <script>
         // Initialize Kakao SDK with your JavaScript key
         Kakao.init('58a4b536ddc574504cbe7b19168b3839');
-        console.log(Kakao.isInitialized()); // Check if initialized
+        console.log('Kakao SDK initialized:', Kakao.isInitialized()); // Check if initialized
 
         async function shareOnKakao(text, imageUrl) {
+            console.log('Sharing on Kakao:', text, imageUrl);
             Kakao.Link.sendDefault({
                 objectType: 'feed',
                 content: {
@@ -31,6 +30,13 @@
                         }
                     }
                 ]
+            })
+            .then(response => {
+                console.log('Success:', response);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to share: ' + error.message);
             });
         }
 
@@ -66,9 +72,7 @@
         }
 
         document.addEventListener('paste', handlePasteEvent);
-    </script>
-</head>
-<body>
+    </script></head><body>
     <h1>KakaoTalk Clipboard Share Example</h1>
     <p>Paste text and/or an image from your clipboard here:</p>
     <div>
@@ -87,6 +91,4 @@
             const imageUrl = document.getElementById('preview').src;
             shareOnKakao(text, imageUrl);
         };
-    </script>
-</body>
-</html>
+    </script></body></html>
