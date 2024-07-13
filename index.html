@@ -88,24 +88,26 @@
         // Add event listener for paste event
         document.addEventListener('paste', handlePasteEvent);
 
-        // Share button click event handler
-        document.getElementById('share-btn').onclick = async function() {
-            const text = document.getElementById('text-input').value;
-            const base64Image = document.getElementById('preview').src;
-            try {
-                let imageUrl;
-                if (base64Image && base64Image.startsWith('data:')) {
-                    // Upload base64 image to Imgur
-                    imageUrl = await uploadToImgur(base64Image);
-                } else {
-                    // Use existing URL
-                    imageUrl = base64Image;
+        // Ensure the DOM is fully loaded before accessing elements
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('share-btn').onclick = async function() {
+                const text = document.getElementById('text-input').value;
+                const base64Image = document.getElementById('preview').src;
+                try {
+                    let imageUrl;
+                    if (base64Image && base64Image.startsWith('data:')) {
+                        // Upload base64 image to Imgur
+                        imageUrl = await uploadToImgur(base64Image);
+                    } else {
+                        // Use existing URL
+                        imageUrl = base64Image;
+                    }
+                    shareOnKakao(text, imageUrl);
+                } catch (error) {
+                    alert('Failed to process image: ' + error.message);
                 }
-                shareOnKakao(text, imageUrl);
-            } catch (error) {
-                alert('Failed to process image: ' + error.message);
-            }
-        };
+            };
+        });
     </script>
 </head>
 <body>
