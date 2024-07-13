@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오톡 공유하기</title>
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        #message { width: 80%; height: 100px; margin: 20px 0; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>카카오톡으로 메시지 공유하기</h1>
+    <textarea id="message" placeholder="공유할 메시지를 입력하세요"></textarea><br>
+    <button onclick="shareToKakao()">카카오톡으로 공유하기</button>
+
+    <script>
+        // 여기에 발급받은 앱 키를 입력하세요
+        Kakao.init('58a4b536ddc574504cbe7b19168b3839');
+
+        function shareToKakao() {
+            var message = document.getElementById('message').value;
+            Kakao.Link.sendDefault({
+                objectType: 'text',
+                text: message,
+                link: {
+                    mobileWebUrl: 'https://developers.kakao.com',
+                    webUrl: 'https://developers.kakao.com',
+                },
+            });
+        }
+    </script>
+</body>
+</html>
