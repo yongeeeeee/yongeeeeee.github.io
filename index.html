@@ -42,7 +42,6 @@
 
         function handlePasteEvent(e) {
             const items = e.clipboardData.items;
-            let text = '';
             let imageUrl = '';
             let imageFound = false;
 
@@ -54,30 +53,28 @@
                         imageUrl = event.target.result;
                         document.getElementById('preview').src = imageUrl;
                         imageFound = true;
-                        if (text || imageFound) {
+                        if (imageFound) {
                             document.getElementById('share-btn').disabled = false;
                         }
                     };
                     reader.readAsDataURL(blob);
-                } else if (items[i].kind === 'string') {
-                    items[i].getAsString(function(str) {
-                        text = str;
-                        document.getElementById('text-preview').innerText = text;
-                        if (text || imageFound) {
-                            document.getElementById('share-btn').disabled = false;
-                        }
-                    });
                 }
             }
         }
 
         document.addEventListener('paste', handlePasteEvent);
+
+        function enableShareButton() {
+            const text = document.getElementById('text-input').value;
+            const imageUrl = document.getElementById('preview').src;
+            document.getElementById('share-btn').disabled = !(text || imageUrl);
+        }
     </script></head><body>
     <h1>KakaoTalk Clipboard Share Example</h1>
-    <p>Paste text and/or an image from your clipboard here:</p>
+    <p>Paste an image from your clipboard and/or enter text:</p>
     <div>
         <p>Text:</p>
-        <p id="text-preview" style="border: 1px solid #ccc; padding: 10px;"></p>
+        <textarea id="text-input" oninput="enableShareButton()" style="width: 100%; height: 100px;"></textarea>
     </div>
     <div>
         <p>Image:</p>
@@ -87,7 +84,7 @@
     <button id="share-btn" disabled>Share on KakaoTalk</button>
     <script>
         document.getElementById('share-btn').onclick = function() {
-            const text = document.getElementById('text-preview').innerText;
+            const text = document.getElementById('text-input').value;
             const imageUrl = document.getElementById('preview').src;
             shareOnKakao(text, imageUrl);
         };
