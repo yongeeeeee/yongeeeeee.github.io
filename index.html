@@ -1,12 +1,31 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KakaoTalk Clipboard Share Example</title>
     <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-        // Initialize Kakao SDK with your JavaScript key
         Kakao.init('58a4b536ddc574504cbe7b19168b3839');
-        console.log('Kakao SDK initialized:', Kakao.isInitialized()); // Check if initialized
+        console.log('Kakao SDK initialized:', Kakao.isInitialized());
+
+        async function uploadToImgur(base64Image) {
+            const clientId = '2b5990bf57b1400';
+            try {
+                const response = await axios.post('https://api.imgur.com/3/image', {
+                    image: base64Image.split(',')[1]
+                }, {
+                    headers: {
+                        Authorization: `Client-ID ${clientId}`
+                    }
+                });
+                return response.data.data.link;
+            } catch (error) {
+                console.error('Error uploading to Imgur:', error);
+                throw error;
+            }
+        }
 
         async function shareOnKakao(text, imageUrl) {
             console.log('Sharing on Kakao:', text, imageUrl);
@@ -42,20 +61,13 @@
 
         function handlePasteEvent(e) {
             const items = e.clipboardData.items;
-            let imageUrl = '';
-            let imageFound = false;
-
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf("image") !== -1) {
                     const blob = items[i].getAsFile();
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        imageUrl = event.target.result;
-                        document.getElementById('preview').src = imageUrl;
-                        imageFound = true;
-                        if (imageFound) {
-                            document.getElementById('share-btn').disabled = false;
-                        }
+                        document.getElementById('preview').src = event.target.result;
+                        enableShareButton();
                     };
                     reader.readAsDataURL(blob);
                 }
@@ -69,7 +81,9 @@
             const imageUrl = document.getElementById('preview').src;
             document.getElementById('share-btn').disabled = !(text || imageUrl);
         }
-    </script></head><body>
+    </script>
+</head>
+<body>
     <h1>KakaoTalk Clipboard Share Example</h1>
     <p>Paste an image from your clipboard and/or enter text:</p>
     <div>
@@ -83,9 +97,16 @@
     <br/>
     <button id="share-btn" disabled>Share on KakaoTalk</button>
     <script>
-        document.getElementById('share-btn').onclick = function() {
+        document.getElementById('share-btn').onclick = async function() {
             const text = document.getElementById('text-input').value;
-            const imageUrl = document.getElementById('preview').src;
-            shareOnKakao(text, imageUrl);
+            const base64Image = document.getElementById('preview').src;
+            try {
+                const imageUrl = await uploadToImgur(base64Image);
+                shareOnKakao(text, imageUrl);
+            } catch (error) {
+                alert('Failed to upload image: ' + error.message);
+            }
         };
-    </script></body></html>
+    </script>
+</body>
+</html>
