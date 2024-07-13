@@ -8,28 +8,75 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
         #message { width: 80%; height: 100px; margin: 20px 0; }
-        button { padding: 10px 20px; font-size: 16px; }
+        #imagePreview { max-width: 300px; max-height: 300px; margin: 20px auto; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
     </style>
 </head>
 <body>
-    <h1>카카오톡으로 메시지 공유하기</h1>
+    <h1>카카오톡으로 메시지 및 이미지 공유하기</h1>
     <textarea id="message" placeholder="공유할 메시지를 입력하세요"></textarea><br>
+    <div id="imagePasteArea" style="border: 2px dashed #ccc; padding: 20px; margin: 20px auto; width: 300px;">
+        여기에 이미지를 붙여넣기 하세요
+    </div>
+    <img id="imagePreview" style="display: none;"><br>
     <button onclick="shareToKakao()">카카오톡으로 공유하기</button>
 
     <script>
-        // 여기에 발급받은 앱 키를 입력하세요
-        Kakao.init('58a4b536ddc574504cbe7b19168b3839');
+        Kakao.init('58a4b536ddc574504cbe7b19168b3839'); // 여기에 발급받은 앱 키를 입력하세요
+
+        let pastedImage = null;
+
+        document.getElementById('imagePasteArea').addEventListener('paste', function(e) {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.getElementById('imagePreview').src = event.target.result;
+                        document.getElementById('imagePreview').style.display = 'block';
+                        pastedImage = event.target.result;
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
 
         function shareToKakao() {
-            var message = document.getElementById('message').value;
-            Kakao.Link.sendDefault({
-                objectType: 'text',
-                text: message,
-                link: {
-                    mobileWebUrl: 'https://developers.kakao.com',
-                    webUrl: 'https://developers.kakao.com',
-                },
-            });
+            const message = document.getElementById('message').value;
+            
+            if (pastedImage) {
+                Kakao.Link.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '공유 메시지',
+                        description: message,
+                        imageUrl: pastedImage,
+                        link: {
+                            mobileWebUrl: 'https://developers.kakao.com',
+                            webUrl: 'https://developers.kakao.com',
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '웹으로 보기',
+                            link: {
+                                mobileWebUrl: 'https://developers.kakao.com',
+                                webUrl: 'https://developers.kakao.com',
+                            },
+                        },
+                    ],
+                });
+            } else {
+                Kakao.Link.sendDefault({
+                    objectType: 'text',
+                    text: message,
+                    link: {
+                        mobileWebUrl: 'https://developers.kakao.com',
+                        webUrl: 'https://developers.kakao.com',
+                    },
+                });
+            }
         }
     </script>
 </body>
