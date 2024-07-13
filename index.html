@@ -30,33 +30,33 @@
         async function shareOnKakao(text, imageUrl) {
             console.log('Sharing on Kakao:', text, imageUrl);
             Kakao.Link.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: 'Shared from Clipboard',
-                    description: text,
-                    imageUrl: imageUrl,
-                    link: {
-                        mobileWebUrl: imageUrl,
-                        webUrl: imageUrl
-                    }
-                },
-                buttons: [
-                    {
-                        title: 'View Image',
-                        link: {
-                            mobileWebUrl: imageUrl,
-                            webUrl: imageUrl
-                        }
-                    }
-                ]
-            })
-            .then(response => {
-                console.log('Success:', response);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to share: ' + error.message);
-            });
+    objectType: 'feed',
+    content: {
+        title: 'Shared from Clipboard',
+        description: text,
+        imageUrl: imageUrl,
+        link: {
+            mobileWebUrl: 'https://developers.kakao.com',
+            webUrl: 'https://developers.kakao.com',
+        },
+    },
+    buttons: [
+        {
+            title: 'View Image',
+            link: {
+                mobileWebUrl: imageUrl,
+                webUrl: imageUrl,
+            },
+        },
+    ],
+})
+.then(response => {
+    console.log('Success:', response);
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('Failed to share: ' + JSON.stringify(error));
+});
         }
 
         function handlePasteEvent(e) {
