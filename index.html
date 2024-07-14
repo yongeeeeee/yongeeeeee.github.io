@@ -102,7 +102,7 @@
                         // Use existing URL
                         imageUrl = base64Image;
                     }
-                    shareOnKakao(text, imageUrl);
+                    await shareOnKakao(text, imageUrl);
                 } catch (error) {
                     alert('Failed to process image: ' + error.message);
                 }
