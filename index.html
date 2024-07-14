@@ -32,7 +32,7 @@
         // Function to share content on KakaoTalk
         async function shareOnKakao(text, imageUrl) {
             console.log('Sharing on Kakao:', text, imageUrl);
-            Kakao.Link.sendDefault({
+            Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
                     title: 'Shared from Clipboard',
